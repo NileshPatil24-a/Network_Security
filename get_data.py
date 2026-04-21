@@ -2,13 +2,15 @@ import sys
 import os 
 import sys
 import json 
-
-from dotenv import load_dotenv
-import certifi
-
 import pandas as pd 
 import numpy as np 
 import pymongo
+import certifi
+
+from dotenv import load_dotenv
+MONGO_DB_URL = os.getenv("MONGO_DB_URL")
+
+ca = certifi.where()
 
 from networksecurity.exception.exception import NetworkSecurityException
 from networksecurity.logger.logger import logging
