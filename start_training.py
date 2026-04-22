@@ -8,7 +8,8 @@ from networksecurity.pipelines.traininig_pipeline import TrainingPipeline
 
 def start_trainig():
     try:
-        pass
+        model_trainig = TrainingPipeline()
+        model_trainig.run_pipeline()
     except Exception as e:
         raise NetworkSecurityException(e, sys)
 if __name__ == "__main__":
