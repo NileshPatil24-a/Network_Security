@@ -57,7 +57,7 @@ class ModelTrainerConfig:
         pass
 
 class ModelEvaluationConfig:
-    def __init__(sefl):
+    def __init__(self):
         pass
 class ModelPusherConfig:
     def __init__(self):
