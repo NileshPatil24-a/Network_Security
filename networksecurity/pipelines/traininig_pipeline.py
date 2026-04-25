@@ -91,9 +91,9 @@ class TrainingPipeline():
         try:
             data_ingestion_artifact = self.start_data_ingestion()
             print(data_ingestion_artifact)
-            data_ingestion_artifact  = self.start_data_validation(data_ingestion_artifact)
-            print(data_ingestion_artifact)
-            data_transformation_artifact = self.start_data_transformation(data_ingestion_artifact=data_ingestion_artifact)
+            data_validation_artifact = self.start_data_validation(data_ingestion_artifact)
+            print(data_validation_artifact)
+            data_transformation_artifact = self.start_data_transformation(data_validation_artifact=data_validation_artifact)
         except Exception as e:
             raise NetworkSecurityException(e,sys)
             
