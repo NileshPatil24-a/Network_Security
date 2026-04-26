@@ -45,11 +45,7 @@ class ModelEvaluationArtifact:
 
 @dataclass
 class ModelPusherArtifact:
-    pass
+    saved_model_path:str
+    model_file_path:str
 
-
-
-@dataclass
-class ClassificationsMetricArtifact:
-    pass
 

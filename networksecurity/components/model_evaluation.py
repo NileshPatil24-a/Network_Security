@@ -36,7 +36,6 @@ class ModelEvaluation:
 
             df = pd.concat([train_df,test_df])
             
-            print(df)
             y_true = df[TARGET_COLUMN]
             
             y_true.replace(-1, 0, inplace=True)
@@ -65,4 +64,3 @@ class ModelEvaluation:
                 return model_evaluation_artifact
         except Exception as e:
             raise NetworkSecurityException(e,sys)
-            
