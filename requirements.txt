@@ -11,6 +11,9 @@ xgboost
 fastapi
 uvicorn
 ipykernel
-apache-airlflow
-
+apache-airflow
+mlflow
+dvc 
+jinja2
+python-multipart
 -e .
