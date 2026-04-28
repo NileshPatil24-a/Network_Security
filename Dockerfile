@@ -21,7 +21,7 @@ ENV AIRFLOW_HOME="/app/airflow"
 ENV AIRFLOW_CORE_DAGBAG_IMPORT_TIMEOUT=1000
 ENV AIRFLOW_CORE_ENABLE_XCOM_PICKLING=True
 
-RUN airflow db init
+RUN mkdir -p /app/airflow && airflow db migrate
 RUN airflow users create -e patilsunda14@gmail.com -f sunda -l patil -p admin -r Admin -u admin
 RUN chmod 777 start.sh
 
