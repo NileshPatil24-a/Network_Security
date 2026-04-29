@@ -1,3 +1,4 @@
 #!/bin/sh
 nohup airflow scheduler &
-airflow webserver
+nohup airflow webserver -p 8081 &
+python main.py
