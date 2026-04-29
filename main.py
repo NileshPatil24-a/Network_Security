@@ -30,6 +30,7 @@ from uvicorn import run as app_run
 from fastapi.responses import Response
 from starlette.responses import RedirectResponse
 import pandas as pd
+from fastapi.staticfiles import StaticFiles
 
 from networksecurity.utils.ml_utils.model.estimator import ModelResolver
 from networksecurity.constant.training_pipeline import SAVED_MODEL_DIR
@@ -46,6 +47,7 @@ database = client[DATA_INGESTION_DATABASE_NAME]
 collection = database[DATA_INGESTION_COLLECTION_NAME]
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 origins = ["*"]
 
 app.add_middleware(
@@ -57,8 +59,8 @@ app.add_middleware(
 )
 
 @app.get("/", tags=["authentication"])
-async def index():
-    return RedirectResponse(url="/docs")
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/train")
 async def train_route():
