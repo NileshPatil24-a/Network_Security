@@ -30,15 +30,11 @@ from uvicorn import run as app_run
 from fastapi.responses import Response
 from starlette.responses import RedirectResponse
 import pandas as pd
-from fastapi.staticfiles import StaticFiles
 
 from networksecurity.utils.ml_utils.model.estimator import ModelResolver
 from networksecurity.constant.training_pipeline import SAVED_MODEL_DIR
 
 from networksecurity.utils.main_utils.utils import load_object
-
-from fastapi.templating import Jinja2Templates
-templates = Jinja2Templates(directory="./templates")
 
 
 client = pymongo.MongoClient(mongo_db_url, tlsCAFile=ca)
@@ -47,7 +43,6 @@ database = client[DATA_INGESTION_DATABASE_NAME]
 collection = database[DATA_INGESTION_COLLECTION_NAME]
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
 origins = ["*"]
 
 app.add_middleware(
@@ -59,8 +54,8 @@ app.add_middleware(
 )
 
 @app.get("/", tags=["authentication"])
-async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+async def index():
+    return RedirectResponse(url="/docs")
 
 @app.get("/train")
 async def train_route():
@@ -86,10 +81,8 @@ async def predict_route(request: Request,file: UploadFile = File(...)):
         y_pred = latest_model.predict(df)
         df['predicted_column'] = y_pred
         df['predicted_column'].replace(-1, 0)
-        #return df.to_json()
-        table_html = df.to_html(classes='table table-striped')
-        #print(table_html)
-        return templates.TemplateResponse("table.html", {"request": request, "table": table_html})
+        
+        return Response(df.to_json())
         
     except Exception as e:
             raise NetworkSecurityException(e,sys)
