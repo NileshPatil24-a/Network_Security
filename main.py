@@ -61,7 +61,11 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", tags=["authentication"])
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    try:
+        return templates.TemplateResponse("index.html", {"request": request})
+    except Exception as e:
+        import traceback
+        return Response(content=traceback.format_exc(), status_code=500, media_type="text/plain")
 
 @app.get("/train")
 async def train_route():
