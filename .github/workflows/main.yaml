@@ -84,7 +84,9 @@ jobs:
       
       - name: Free up disk space
         run: |
-          docker system prune -af
+          docker system prune -af --volumes
+          sudo apt-get clean
+          df -h
 
       - name: Pull latest images
         run: |

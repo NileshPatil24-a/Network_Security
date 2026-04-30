@@ -17,7 +17,7 @@ os.environ["AWS_SECRET_ACCESS_KEY"]=AWS_SECRET_ACCESS_KEY
 
 import pymongo
 
-from networksecurity.constant.training_pipeline import DATA_INGESTION_COLLECTION_NAME
+from networksecurity.constant.training_pipeline import DATA_INGESTION_COLLECTION_NAME, TARGET_COLUMN
 from networksecurity.constant.training_pipeline import DATA_INGESTION_DATABASE_NAME
 from fastapi.responses import HTMLResponse
 from networksecurity.exception.exception import NetworkSecurityException
@@ -26,8 +26,10 @@ from networksecurity.pipelines.traininig_pipeline import TrainingPipeline
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, File, UploadFile,Request
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from uvicorn import run as app_run
-from fastapi.responses import Response
+from fastapi.responses import Response, HTMLResponse
 from starlette.responses import RedirectResponse
 import pandas as pd
 
@@ -53,9 +55,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+templates = Jinja2Templates(directory="templates")
+
 @app.get("/", tags=["authentication"])
-async def index():
-    return RedirectResponse(url="/docs")
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/train")
 async def train_route():
@@ -67,7 +73,7 @@ async def train_route():
         return Response("Training successful !!")
     except Exception as e:
             raise NetworkSecurityException(e,sys)
-    
+
 
 @app.post("/predict")
 async def predict_route(request: Request,file: UploadFile = File(...)):
@@ -78,10 +84,12 @@ async def predict_route(request: Request,file: UploadFile = File(...)):
         latest_model_path = model.get_best_model_path()
         latest_model = load_object(file_path=latest_model_path)
         
+        if TARGET_COLUMN in df.columns:
+            df.drop(columns=[TARGET_COLUMN], inplace=True)
+        
         y_pred = latest_model.predict(df)
         df['predicted_column'] = y_pred
-        df['predicted_column'].replace(-1, 0)
-        
+        df['predicted_column'] = df['predicted_column'].replace(-1, 0)
         return Response(df.to_json())
         
     except Exception as e:
@@ -95,5 +103,5 @@ async def predict_route(request: Request,file: UploadFile = File(...)):
             raise NetworkSecurityException(e,sys)"""
 
                
-if __name__=="__main__":
+if __name__ == "__main__":
     app_run(app, host="0.0.0.0", port=8080)

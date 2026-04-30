@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Security AI Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-base: #09090b;
+            --bg-surface: #18181b;
+            --bg-surface-hover: #27272a;
+            --border: #3f3f46;
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.2);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            background-image: 
+                radial-gradient(circle at 15% 50%, var(--accent-glow), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        aside {
+            width: 260px;
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 50;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .brand i {
+            color: var(--accent);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .nav-item.active, .nav-item:hover {
+            background: var(--bg-surface-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            box-shadow: inset 3px 0 0 var(--accent);
+        }
+
+        /* Main Content */
+        main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem 3rem;
+            max-width: 1200px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-title p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .status-pill {
+            background: var(--success-bg);
+            color: var(--success);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        /* Upload Section */
+        .upload-container {
+            background: rgba(24, 24, 27, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 4rem 2rem;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+            transform: scale(1.01);
+        }
+
+        .dropzone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .drop-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--bg-surface-hover);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--accent);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .dropzone:hover .drop-icon {
+            transform: translateY(-5px);
+        }
+
+        .dropzone h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .dropzone p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .file-info {
+            display: none;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-details i {
+            color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Scanning Animation */
+        .scan-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(9, 9, 11, 0.8);
+            border-radius: 12px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+        }
+
+        .scanner {
+            width: 100px;
+            height: 100px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scanner::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50%;
+            height: 2px;
+            background: var(--accent);
+            transform-origin: left center;
+            animation: radar 2s linear infinite;
+        }
+
+        /* Results Section */
+        .results-wrapper {
+            display: none;
+            margin-top: 3rem;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .metric-icon {
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .metric-info h4 {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .metric-info .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .table-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        th {
+            background: rgba(0,0,0,0.2);
+            padding: 12px 1.5rem;
+            text-align: left;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 14px 1.5rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-safe { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        @keyframes radar {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            aside { transform: translateX(-100%); transition: transform 0.3s; }
+            main { margin-left: 0; padding: 1.5rem; }
+            .metrics-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div class="brand">
+            <i data-lucide="shield-alert"></i>
+            NetSec AI
+        </div>
+        <nav>
+            <a class="nav-item active">
+                <i data-lucide="layout-dashboard" size="18"></i>
+                Dashboard
+            </a>
+            <a class="nav-item">
+                <i data-lucide="history" size="18"></i>
+                Analysis History
+            </a>
+            <a class="nav-item">
+                <i data-lucide="settings" size="18"></i>
+                Settings
+            </a>
+        </nav>
+    </aside>
+
+    <main>
+        <header>
+            <div class="page-title">
+                <h1>Threat Detection</h1>
+                <p>Upload network traffic logs for AI-powered anomaly analysis</p>
+            </div>
+            <div class="status-pill">
+                <div class="status-dot"></div>
+                Engine Active
+            </div>
+        </header>
+
+        <section class="upload-container">
+            <div class="dropzone" id="drop-zone">
+                <div class="scan-overlay" id="scan-overlay">
+                    <div class="scanner"></div>
+                    <p style="color: var(--accent); font-weight: 500;">Analyzing network signatures...</p>
+                </div>
+
+                <input type="file" id="file-input" accept=".csv">
+                <div class="drop-icon">
+                    <i data-lucide="upload-cloud" size="32"></i>
+                </div>
+                <h3>Drag & Drop Dataset</h3>
+                <p>Supports .CSV files containing network traffic features</p>
+            </div>
+
+            <div class="file-info" id="file-info">
+                <div class="file-details">
+                    <i data-lucide="file-text" size="24"></i>
+                    <div>
+                        <div id="file-name" style="font-weight: 500; font-size: 0.95rem;">filename.csv</div>
+                        <div id="file-size" style="font-size: 0.8rem; color: var(--text-secondary);">0 KB</div>
+                    </div>
+                </div>
+                <button class="btn-primary" id="analyze-btn" disabled>
+                    <i data-lucide="scan-line" size="18"></i>
+                    Run Analysis
+                </button>
+            </div>
+        </section>
+
+        <section class="results-wrapper" id="results-section">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: rgba(99, 102, 241, 0.1); color: var(--accent);">
+                        <i data-lucide="database" size="24"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h4>Total Records Scanned</h4>
+                        <div class="value" id="metric-total">0</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: var(--danger-bg); color: var(--danger);">
+                        <i data-lucide="alert-triangle" size="24"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h4>Threats Detected</h4>
+                        <div class="value" id="metric-threats">0</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: var(--success-bg); color: var(--success);">
+                        <i data-lucide="shield-check" size="24"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h4>Secure Records</h4>
+                        <div class="value" id="metric-safe">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 style="font-size: 1.1rem; font-weight: 600;">Detailed Analysis Log</h3>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary);">Showing preview of parsed data</span>
+                </div>
+                <div class="table-wrapper" id="table-wrapper">
+                    <!-- Table will be injected here -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const scanOverlay = document.getElementById('scan-overlay');
+        const resultsSection = document.getElementById('results-section');
+        const tableWrapper = document.getElementById('table-wrapper');
+
+        // File handling
+        const handleFile = (file) => {
+            if (file && file.name.endsWith('.csv')) {
+                fileName.textContent = file.name;
+                fileSize.textContent = (file.size / 1024).toFixed(2) + ' KB';
+                fileInfo.style.display = 'flex';
+                analyzeBtn.disabled = false;
+                resultsSection.style.display = 'none';
+            } else {
+                alert('Please upload a valid CSV file.');
+            }
+        };
+
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        // Drag and Drop visual feedback
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const file = e.dataTransfer.files[0];
+            fileInput.files = e.dataTransfer.files;
+            handleFile(file);
+        });
+
+        // Analysis API call
+        analyzeBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // UI State: Scanning
+            analyzeBtn.disabled = true;
+            scanOverlay.style.display = 'flex';
+            resultsSection.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                processResults(data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Analysis failed. Check console for details.');
+            } finally {
+                // Restore UI State
+                scanOverlay.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        });
+
+        function processResults(data) {
+            const keys = Object.keys(data);
+            if (keys.length === 0) return;
+            
+            const indices = Object.keys(data[keys[0]]);
+            const totalRecords = indices.length;
+            
+            let threatCount = 0;
+            let safeCount = 0;
+            
+            // Generate Table
+            let html = '<table><thead><tr>';
+            html += '<th>Status</th>'; // Bring status to the front
+            keys.filter(k => k !== 'predicted_column').forEach(key => html += `<th>${key}</th>`);
+            html += '</tr></thead><tbody>';
+
+            // Limit display to prevent browser freeze, but calculate stats for all
+            const displayLimit = Math.min(totalRecords, 50);
+
+            indices.forEach((idx, i) => {
+                const predVal = data['predicted_column'] ? data['predicted_column'][idx] : null;
+                const isSafe = (predVal == 0 || predVal == -1);
+                
+                if (isSafe) safeCount++;
+                else threatCount++;
+
+                // Only render rows up to displayLimit
+                if (i < displayLimit) {
+                    html += '<tr>';
+                    
+                    // Render Status Badge first
+                    if (predVal !== null) {
+                        if (isSafe) {
+                            html += `<td><span class="badge badge-safe">Secure</span></td>`;
+                        } else {
+                            html += `<td><span class="badge badge-danger">Threat</span></td>`;
+                        }
+                    } else {
+                        html += `<td>-</td>`;
+                    }
+
+                    // Render other columns
+                    keys.filter(k => k !== 'predicted_column').forEach(key => {
+                        let val = data[key][idx];
+                        // format numbers nicely
+                        if (typeof val === 'number' && !Number.isInteger(val)) {
+                            val = val.toFixed(4);
+                        }
+                        html += `<td>${val}</td>`;
+                    });
+                    
+                    html += '</tr>';
+                }
+            });
+
+            html += '</tbody></table>';
+            
+            // Update UI
+            document.getElementById('metric-total').textContent = totalRecords.toLocaleString();
+            document.getElementById('metric-threats').textContent = threatCount.toLocaleString();
+            document.getElementById('metric-safe').textContent = safeCount.toLocaleString();
+            
+            tableWrapper.innerHTML = html;
+            resultsSection.style.display = 'block';
+            
+            // Smooth scroll to results
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
